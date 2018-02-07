@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.chaimm.rcmd.dao.ArticleDAO" >
+
+    <insert id="createArticle">
+        INSERT INTO rcmd.article (id, origin, title, content, url, comments, increase_comments, views, increase_views, author, crawl_time, post_time, state)
+        VALUES (#{id}, #{origin.code}, #{title}, #{content}, #{url}, #{comments}, #{increaseComments}, #{views}, #{increaseViews}, #{author}, #{crawlTime}, #{postTime}, #{state.code} )
+    </insert>
+
+    <insert id="createCategory">
+        INSERT INTO rcmd.article_category (article_id, category_id, category_name, category_parent_id)
+        VALUES
+        <foreach collection="categoryList" item="category" index="index" separator=",">
+            (#{id}, #{category.id}, #{category.name}, #{category.parent.id})
+        </foreach>
+    </insert>
+
+    <update id="updateCommentsAndViews">
+        UPDATE rcmd.article
+        SET
+          increase_comments = #{comments} - comments,
+          increase_views = #{views} - views,
+          comments = #{comments},
+          views = #{views}
+        WHERE
+          id = #{articleId}
+    </update>
+</mapper>
