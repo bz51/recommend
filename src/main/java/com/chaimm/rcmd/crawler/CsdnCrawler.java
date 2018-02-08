@@ -4,14 +4,20 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.chaimm.rcmd.analyzer.CsdnAnalyzer;
 import com.chaimm.rcmd.entity.Article;
-import com.chaimm.rcmd.util.HttpUtil;
 import com.google.common.collect.Lists;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -40,55 +46,49 @@ public class CsdnCrawler extends Crawler {
     @Value("${csdn.thread-pool.keep-alive-time}")
     private int csdnThreadPoolKeepAliveTime;
 
-    @Value("${csdn.repeat-num-per-category}")
-    private int repeatNumPerCategory;
+    /** 每个爬虫私有的线程池 */
+    private ThreadPoolExecutor executor;
+
+    /** 本平台爬虫的启动时间(h) */
+    @Value("${csdn.start-delay-time}")
+    private long startDelayTime;
+
+    /** 本平台爬虫的间隔时间执行(h) (从上一次定时任务执行完成后开始计时) */
+    @Value("${csdn.period}")
+    private long period;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 
     /**
      * 并发规则：为CSDN的每个类别创建一条线程爬取
      */
     @Override
     public void crawl() {
-        CsdnCrawlerTask task1 = new CsdnCrawlerTask("news");
-        CsdnCrawlerTask task2 = new CsdnCrawlerTask("ai");
-        CsdnCrawlerTask task3 = new CsdnCrawlerTask("cloud");
-        CsdnCrawlerTask task4 = new CsdnCrawlerTask("blockchain");
-        CsdnCrawlerTask task5 = new CsdnCrawlerTask("db");
-        CsdnCrawlerTask task6 = new CsdnCrawlerTask("career");
-        CsdnCrawlerTask task7 = new CsdnCrawlerTask("game");
-        CsdnCrawlerTask task8 = new CsdnCrawlerTask("engineering");
-        CsdnCrawlerTask task9 = new CsdnCrawlerTask("web");
-        CsdnCrawlerTask task10 = new CsdnCrawlerTask("mobile");
-        CsdnCrawlerTask task11 = new CsdnCrawlerTask("iot");
-        CsdnCrawlerTask task12 = new CsdnCrawlerTask("ops");
+        // 初始化线程池
+        this.initExecutor();
+
+        CsdnCrawlerTask task1 = new CsdnCrawlerTask(1,100);
 
         executor.submit(task1);
-        executor.submit(task2);
-        executor.submit(task3);
-        executor.submit(task4);
-        executor.submit(task5);
-        executor.submit(task6);
-        executor.submit(task7);
-        executor.submit(task8);
-        executor.submit(task9);
-        executor.submit(task10);
-        executor.submit(task11);
-        executor.submit(task12);
+//        executor.submit(task2);
+//        executor.submit(task3);
+//        executor.submit(task4);
+//        executor.submit(task5);
+//        executor.submit(task6);
+//        executor.submit(task7);
+//        executor.submit(task8);
+//        executor.submit(task9);
+//        executor.submit(task10);
+//        executor.submit(task11);
+//        executor.submit(task12);
     }
 
-    @Override
-    protected void setStartDelayTime() {
-        // 启动后立即爬取
-        super.startDelayTime = 0;
-    }
 
-    @Override
-    protected void setPeriod() {
-        // 每 24h 爬取一次新文章
-        super.period = 24;
-    }
-
-    @Override
-    protected void setExecutor() {
+    /**
+     * 初始化线程池
+     */
+    public void initExecutor() {
         this.executor = new ThreadPoolExecutor(
                 csdnThreadPoolCorePoolSize,
                 csdnThreadPoolMaxPoolSize,
@@ -105,33 +105,79 @@ public class CsdnCrawler extends Crawler {
      */
     private class CsdnCrawlerTask implements Runnable {
 
-        private static final String URL_Prefix = "https://www.csdn.net/api/articles?type=more&category=";
-        private static final String URL_Suffix = "&shown_offset=0";
+        private static final String URL_Prefix = "http://oldblog.csdn.net/hotarticle.html?page=";
 
         /** CSDN文章类别 */
-        private String type;
+        private int startPage;
+        private int endPage;
 
-        public CsdnCrawlerTask(String type) {
-            this.type = type;
+
+        public CsdnCrawlerTask(int startPage, int endPage) {
+            this.startPage = startPage;
+            this.endPage = endPage;
         }
 
         @Override
         public void run() {
+            try {
+                for (int curPage=startPage; curPage<=endPage; curPage++) {
 
-            // 每个类别爬取repeatNumPerCategory次后结束
-            for (int i=0; i<repeatNumPerCategory; i++) {
-                // 发送请求
-                // TODO 尚未增加健壮性判断
-                String result = HttpUtil.httpsRequest(generateURL(), "GET", "");
-                JSONObject resultObject = JSONObject.parseObject(result);
-                JSONArray articleJsonArray = resultObject.getJSONArray("articles");
+                    // 发送请求
+                    // TODO 健壮性判断方法有待考虑
+                    Document document = Jsoup.connect(URL_Prefix+curPage).get();
 
-                // 获取文章URL列表(能获取的都获取了)
-                List<Article> articleList = analysisURL(articleJsonArray);
+                    // 获取文章URL列表(能获取的都获取了)
+                    List<Article> articleList = analysisDocument(document);
 
-                // 交给Csdn数据解析器处理
-                analyzer.analysis(articleList);
+                    // 交给Csdn数据解析器处理
+                    analyzer.analysis(articleList);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                logger.error("CSDN-Hot-"+startPage+"-"+endPage+"爬取失败！");
             }
+        }
+
+        /**
+         * 解析文章列表页
+         * @param document
+         * @return
+         */
+        private List<Article> analysisDocument(Document document) {
+            Elements elements = document.getElementsByClass("blog_list");
+            List<Article> articleList = Lists.newArrayList();
+
+            if (!CollectionUtils.isEmpty(elements)) {
+                for (Element element : elements) {
+                    Article article = new Article();
+
+                    String username = element.getElementsByClass("nickname").get(0).text();
+                    article.setAuthor(username);
+
+                    int views = Integer.parseInt(element.getElementsByTag("em").get(0).text());
+                    article.setViews(views);
+
+                    Elements allA = element.getElementsByTag("a");
+                    // PS：标题所在的<a>为每条文章列表的第三个<a>标签
+                    Element aElement = allA.get(2);
+                    String title = aElement.text();
+                    String url = aElement.attr("href");
+                    article.setTitle(title);
+                    article.setUrl(url);
+
+                    // PS：类别所在的<a>为每条文章列表的第四个<a>标签(部分文章没有分类)
+                    if (allA.size()>3) {
+                        Element categoryElement = allA.get(3);
+                        String category = categoryElement.text();
+                        List<String> tagList = Lists.newArrayList();
+                        tagList.add(category);
+                        article.setTagList(tagList);
+                    }
+
+                    articleList.add(article);
+                }
+            }
+            return articleList;
         }
 
         /**
@@ -139,6 +185,7 @@ public class CsdnCrawler extends Crawler {
          * @param articleJsonArray
          * @return
          */
+        @Deprecated
         private List<Article> analysisURL(JSONArray articleJsonArray) {
             List<Article> articleList = Lists.newArrayList();
 
@@ -188,9 +235,62 @@ public class CsdnCrawler extends Crawler {
             return tagList;
         }
 
-        private String generateURL() {
-            return URL_Prefix + type + URL_Suffix;
-        }
     }
 
+
+
+    /**
+     * 供Starter获取本平台爬虫的启动时延
+     * @return
+     */
+    @Override
+    public long getStartDelayTime() {
+        return startDelayTime;
+    }
+
+    /**
+     * 供Starter获取本平台爬虫的执行间隔
+     * @return
+     */
+    @Override
+    public long getPeriod() {
+        return period;
+    }
+
+    @Override
+    public String getCrawlerName() {
+        return "CSDN";
+    }
+
+    public int getCsdnThreadPoolCorePoolSize() {
+        return csdnThreadPoolCorePoolSize;
+    }
+
+    public void setCsdnThreadPoolCorePoolSize(int csdnThreadPoolCorePoolSize) {
+        this.csdnThreadPoolCorePoolSize = csdnThreadPoolCorePoolSize;
+    }
+
+    public int getCsdnThreadPoolMaxPoolSize() {
+        return csdnThreadPoolMaxPoolSize;
+    }
+
+    public void setCsdnThreadPoolMaxPoolSize(int csdnThreadPoolMaxPoolSize) {
+        this.csdnThreadPoolMaxPoolSize = csdnThreadPoolMaxPoolSize;
+    }
+
+    public int getCsdnThreadPoolKeepAliveTime() {
+        return csdnThreadPoolKeepAliveTime;
+    }
+
+    public void setCsdnThreadPoolKeepAliveTime(int csdnThreadPoolKeepAliveTime) {
+        this.csdnThreadPoolKeepAliveTime = csdnThreadPoolKeepAliveTime;
+    }
+
+    public void setStartDelayTime(long startDelayTime) {
+        this.startDelayTime = startDelayTime;
+    }
+
+    public void setPeriod(long period) {
+        this.period = period;
+    }
 }

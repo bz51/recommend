@@ -2,6 +2,7 @@ package com.chaimm.rcmd.redis;
 
 import com.chaimm.rcmd.entity.Article;
 import com.chaimm.rcmd.entity.Category;
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.*;
@@ -19,7 +20,7 @@ import java.util.*;
 public class RedisDAO {
 
     @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    private RedisTemplate redisTemplate;
 
     /** 文章类别集合 */
 //    private Map<String, Set<Article>> categoryMap = new HashMap<>();
@@ -78,7 +79,17 @@ public class RedisDAO {
 //                ops.add(category.getId(), article)
             }
         }
+    }
 
+    public void readArticles() {
+        Set set = redisTemplate.opsForZSet().range("demo", 0, -1);
+        System.out.println("文章数量："+set.size());
+        List<Article> articleList = Lists.newArrayList();
+        for (Object obj : set) {
+            Article article = (Article) obj;
+            articleList.add(article);
+        }
+        System.out.println();
     }
 
 }

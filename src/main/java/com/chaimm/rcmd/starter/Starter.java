@@ -5,6 +5,8 @@ import com.chaimm.rcmd.crawler.Crawler;
 import com.chaimm.rcmd.crawler.CsdnCrawler;
 import com.chaimm.rcmd.entity.Category;
 import com.chaimm.rcmd.redis.RedisDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -25,12 +27,18 @@ import java.util.concurrent.*;
 @Component
 public class Starter implements CommandLineRunner{
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     /** 定时任务线程池 */
-    private ScheduledExecutorService executor = Executors.newScheduledThreadPool(10);
+    private ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(10);
 
     /** 所有平台的爬虫（CSDN爬虫、Infoq爬虫……） */
     @Autowired
     private List<Crawler> crawlerList;
+
+    // TODO 临时使用
+    @Autowired
+    private RedisDAO redisDAO;
 
 
     /**
@@ -42,8 +50,13 @@ public class Starter implements CommandLineRunner{
     public void run(String... strings) throws Exception {
 
         // 启动所有爬虫
-        startCrawler();
+//        startCrawler();
 
+        readArticles();
+    }
+
+    private void readArticles() {
+        redisDAO.readArticles();
     }
 
     /**
@@ -52,7 +65,8 @@ public class Starter implements CommandLineRunner{
     private void startCrawler() {
         if (!CollectionUtils.isEmpty(crawlerList)) {
             for (Crawler crawler : crawlerList) {
-                executor.scheduleAtFixedRate(crawler, crawler.getStartDelayTime(), crawler.getPeriod(), TimeUnit.HOURS);
+                scheduledExecutor.scheduleAtFixedRate(crawler, crawler.getStartDelayTime(), crawler.getPeriod(), TimeUnit.HOURS);
+                logger.info(crawler.getCrawlerName() + "爬虫启动完毕！");
             }
         }
     }

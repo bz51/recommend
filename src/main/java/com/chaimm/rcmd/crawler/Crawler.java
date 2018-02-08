@@ -12,15 +12,6 @@ import java.util.concurrent.ThreadPoolExecutor;
  */
 public abstract class Crawler implements Runnable {
 
-    /** 每个爬虫私有的线程池 */
-    protected ThreadPoolExecutor executor;
-
-    /** 本平台爬虫的启动时间(h) */
-    protected long startDelayTime;
-
-    /** 本平台爬虫的间隔时间执行(h) (从上一次定时任务执行完成后开始计时) */
-    protected long period;
-
 
     /**
      * 本平台的爬取过程
@@ -28,36 +19,11 @@ public abstract class Crawler implements Runnable {
      */
     public abstract void crawl();
 
-    /**
-     * 供子类设置本平台爬虫开始时间
-     */
-    protected abstract void setStartDelayTime();
+    public abstract long getStartDelayTime();
+    public abstract long getPeriod();
 
-    /**
-     * 供子类设置本平台爬虫的执行间隔
-     */
-    protected abstract void setPeriod();
+    public abstract String getCrawlerName();
 
-    /**
-     * 供子类设置本平台爬虫所需的线程池
-     */
-    protected abstract void setExecutor();
-
-    /**
-     * 供Starter获取本平台爬虫的启动时延
-     * @return
-     */
-    public long getStartDelayTime() {
-        return startDelayTime;
-    }
-
-    /**
-     * 供Starter获取本平台爬虫的执行间隔
-     * @return
-     */
-    public long getPeriod() {
-        return period;
-    }
 
     /**
      * 供定时线程池调用

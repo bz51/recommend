@@ -6,6 +6,8 @@ import com.chaimm.rcmd.entity.Article;
 import com.chaimm.rcmd.entity.Category;
 import com.chaimm.rcmd.redis.RedisDAO;
 import com.google.common.collect.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 
@@ -27,6 +29,8 @@ public abstract class Analyzer {
 
     @Autowired
     protected Classifier classifier;
+
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
     /**
@@ -55,7 +59,7 @@ public abstract class Analyzer {
     }
 
     /**
-     * 批量分类
+     * 文章批量分类
      * @param articleList
      * @return
      */
@@ -83,9 +87,12 @@ public abstract class Analyzer {
                 // 若是新文章，则添加
                 if (isNewArticle(article)) {
                     articleListFiltered.add(article);
+                } else {
+                    logger.warn("重复文章："+article.getTitle());
                 }
             }
         }
+
 
         return articleListFiltered;
     }
@@ -96,14 +103,12 @@ public abstract class Analyzer {
      * @return
      */
     protected boolean isNewArticle(Article article) {
-        return redisDAO.hasArticle(article.getTitle());
+        return !redisDAO.hasArticle(article.getTitle());
     }
 
-    protected abstract void insertRedis(List<Article> articleList);
-
-    protected abstract void insertDB(List<Article> articleList);
 
     protected abstract List<Article> batchAnalysisArticleDetail(List<Article> articleList);
+
 
     /**
      * 文章权重计算器
@@ -113,6 +118,36 @@ public abstract class Analyzer {
     protected List<Article> calWeight(List<Article> articleList) {
         // TODO 权重计算器尚未完成
         return articleList;
+    }
+
+
+    /**
+     * 文章插入Redis
+     * @param articleList
+     */
+    protected void insertRedis(List<Article> articleList) {
+        if (!CollectionUtils.isEmpty(articleList)) {
+            for (Article article : articleList) {
+                redisDAO.addArticle(article);
+                logger.info("《"+article.getTitle()+"》入库成功！");
+            }
+        }
+    }
+
+
+    /**
+     * 文章插入DB
+     * @param articleList
+     */
+    protected void insertDB(List<Article> articleList) {
+        if (!CollectionUtils.isEmpty(articleList)) {
+            for (Article article : articleList) {
+                // 插入文章
+                articleDAO.createArticle(article);
+                // 插入文章-类别
+                articleDAO.createCategory(article);
+            }
+        }
     }
 
 }
