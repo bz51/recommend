@@ -25,5 +25,7 @@ public class Spliter {
     public List<String> splitWord(String sentence) {
         String resultJsonStr = HttpUtil.sendGet(url, param + sentence);
 //        JSON
+        // TODO 等分词服务器搭建完后继续写……
+        return null;
     }
 }
