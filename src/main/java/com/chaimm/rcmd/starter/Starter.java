@@ -50,9 +50,9 @@ public class Starter implements CommandLineRunner{
     public void run(String... strings) throws Exception {
 
         // 启动所有爬虫
-//        startCrawler();
+        startCrawler();
 
-        readArticles();
+//        readArticles();
     }
 
     private void readArticles() {

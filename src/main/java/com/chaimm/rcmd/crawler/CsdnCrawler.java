@@ -68,7 +68,7 @@ public class CsdnCrawler extends Crawler {
         // 初始化线程池
         this.initExecutor();
 
-        CsdnCrawlerTask task1 = new CsdnCrawlerTask(1,100);
+        CsdnCrawlerTask task1 = new CsdnCrawlerTask(1,5);
 
         executor.submit(task1);
 //        executor.submit(task2);
@@ -121,6 +121,7 @@ public class CsdnCrawler extends Crawler {
         public void run() {
             try {
                 for (int curPage=startPage; curPage<=endPage; curPage++) {
+                    logger.info("=========CSDN-Hot-第"+curPage+"页-开始爬取==========");
 
                     // 发送请求
                     // TODO 健壮性判断方法有待考虑

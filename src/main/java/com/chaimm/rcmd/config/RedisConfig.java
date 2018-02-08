@@ -18,7 +18,7 @@ public class RedisConfig {
     @Autowired
     private RedisTemplate redisTemplate;
 
-//    @Bean
+    @Bean
     public RedisTemplate redisTemplateInit() {
         //设置序列化Key的实例化对象
         redisTemplate.setKeySerializer(new StringRedisSerializer());
