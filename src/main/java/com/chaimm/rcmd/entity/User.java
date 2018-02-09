@@ -1,6 +1,8 @@
 package com.chaimm.rcmd.entity;
 
 
+import com.google.common.collect.Maps;
+
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.List;
@@ -21,10 +23,10 @@ public class User implements Serializable {
     private Timestamp registerTime;
 
     /** 用户订阅的文章类别 key-类别ID，value-用户对该类别的感兴趣程度 */
-    private Map<String, Object> categoryMap;
+    private Map<String, Object> categoryMap = Maps.newHashMap();
 
     /** 日期-文章列表的Map(只存文章标题) */
-    private Map<Long, List<String>> recmdTitleMap;
+    private Map<Long, List<String>> recmdTitleMap = Maps.newHashMap();
 
     public String getWxid() {
         return wxid;

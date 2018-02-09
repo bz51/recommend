@@ -88,7 +88,7 @@ public class Recommder {
         }
 
         // 获取今日零点零时零分零秒的毫秒数
-        long today = getTodayMillis();
+        Long today = getTodayMillis();
 
         // 更新user
         user.getRecmdTitleMap().put(today, titleList);
@@ -107,13 +107,20 @@ public class Recommder {
 
         List<Article> articleList = Lists.newArrayList();
         for (String categoryId : categoryNumMap.keySet()) {
-            int num = categoryNumMap.get(categoryId).intValue();
-            Set<Article> articleSet = redisDAO.getArticleByCategory(categoryId, num);
 
-            if (!CollectionUtils.isEmpty(articleSet)) {
-                for (Article article : articleSet) {
-                    articleList.add(article);
+            // 获取该类下num篇文章标题
+            int num = categoryNumMap.get(categoryId).intValue();
+            Set<String> titleSet = redisDAO.getTitleByCategory(categoryId, num);
+
+            if (!CollectionUtils.isEmpty(titleSet)) {
+                // 将titleSet——>titleList
+                List<String> titleList = Lists.newArrayList();
+                for (String title : titleSet) {
+                    titleList.add(title);
                 }
+
+                // 将titleList——>articleList
+                articleList.addAll(this.getArticleByTitle(titleList));
             }
         }
 
@@ -148,7 +155,7 @@ public class Recommder {
         // 将余数平均分配给所有感兴趣的类别
         if (rcmdMin > categorySet.size()) {
             String[] arr = {""};
-            String[] categoryNumMapKeyArr = categoryNumMap.keySet().toArray(arr);
+            String[] categoryNumMapKeyArr = categorySet.toArray(arr);
             for (int i=0; i<remainNum; i++) {
                 int num = categoryNumMap.get(categoryNumMapKeyArr[i]).intValue() + 1;
                 categoryNumMap.put(categoryNumMapKeyArr[i], num);

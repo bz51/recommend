@@ -131,15 +131,15 @@ public class RedisDAO {
 
 
     /**
-     * 获取指定类别指定数量的文章
+     * 获取指定类别指定数量的文章标题
      * @param categoryId
      * @param num
      * @return
      */
-    public Set<Article> getArticleByCategory(String categoryId, int num) {
+    public Set<String> getTitleByCategory(String categoryId, int num) {
 
         ZSetOperations ops = redisTemplate.opsForZSet();
-        return ops.range(categoryId, 0, num);
+        return ops.range(categoryId, 0, num-1);
 
     }
 }
