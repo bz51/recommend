@@ -2,6 +2,7 @@ package com.chaimm.rcmd.redis;
 
 import com.chaimm.rcmd.entity.Article;
 import com.chaimm.rcmd.entity.Category;
+import com.chaimm.rcmd.entity.User;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +30,11 @@ public class RedisDAO {
     /** 所有文章title在Redis中的namespace */
     @Value("${redis.namespace.all-article}")
     private String allArticleNamespace;
+
+    /** 用户信息的命名空间 */
+    @Value("${redis.namespace.users}")
+    private String userNamespace;
+    private Article articleByTitle;
 
     /**
      * 添加新文章
@@ -92,4 +98,48 @@ public class RedisDAO {
         System.out.println();
     }
 
+
+    /**
+     * 创建用户
+     * @param user
+     */
+    public void addUser(User user) {
+        HashOperations ops = redisTemplate.opsForHash();
+        ops.put(userNamespace, user.getWxid(), user);
+    }
+
+    /**
+     * 获取指定用户
+     * @param wxid
+     * @return
+     */
+    public User getUser(String wxid) {
+        HashOperations ops = redisTemplate.opsForHash();
+        return (User) ops.get(userNamespace, wxid);
+    }
+
+
+    /**
+     * 根据标题获取文章
+     * @return
+     */
+    public Article getArticleByTitle(String title) {
+
+        HashOperations ops = redisTemplate.opsForHash();
+        return (Article) ops.get(allArticleNamespace, title);
+    }
+
+
+    /**
+     * 获取指定类别指定数量的文章
+     * @param categoryId
+     * @param num
+     * @return
+     */
+    public Set<Article> getArticleByCategory(String categoryId, int num) {
+
+        ZSetOperations ops = redisTemplate.opsForZSet();
+        return ops.range(categoryId, 0, num);
+
+    }
 }

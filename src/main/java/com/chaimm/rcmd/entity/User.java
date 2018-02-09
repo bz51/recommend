@@ -21,10 +21,10 @@ public class User implements Serializable {
     private Timestamp registerTime;
 
     /** 用户订阅的文章类别 key-类别ID，value-用户对该类别的感兴趣程度 */
-    private Map<String, Object> categorySet;
+    private Map<String, Object> categoryMap;
 
     /** 日期-文章列表的Map(只存文章标题) */
-    private Map<Timestamp, List<String>> articleList;
+    private Map<Long, List<String>> recmdTitleMap;
 
     public String getWxid() {
         return wxid;
@@ -50,20 +50,20 @@ public class User implements Serializable {
         this.registerTime = registerTime;
     }
 
-    public Map<String, Object> getCategorySet() {
-        return categorySet;
+    public Map<String, Object> getCategoryMap() {
+        return categoryMap;
     }
 
-    public void setCategorySet(Map<String, Object> categorySet) {
-        this.categorySet = categorySet;
+    public void setCategoryMap(Map<String, Object> categoryMap) {
+        this.categoryMap = categoryMap;
     }
 
-    public Map<Timestamp, List<String>> getArticleList() {
-        return articleList;
+    public Map<Long, List<String>> getRecmdTitleMap() {
+        return recmdTitleMap;
     }
 
-    public void setArticleList(Map<Timestamp, List<String>> articleList) {
-        this.articleList = articleList;
+    public void setRecmdTitleMap(Map<Long, List<String>> recmdTitleMap) {
+        this.recmdTitleMap = recmdTitleMap;
     }
 
     @Override
@@ -72,8 +72,8 @@ public class User implements Serializable {
                 "wxid='" + wxid + '\'' +
                 ", username='" + username + '\'' +
                 ", registerTime=" + registerTime +
-                ", categorySet=" + categorySet +
-                ", articleList=" + articleList +
+                ", categoryMap=" + categoryMap +
+                ", recmdTitleMap=" + recmdTitleMap +
                 '}';
     }
 }
