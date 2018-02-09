@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author 大闲人柴毛毛
@@ -74,6 +75,7 @@ public class Controller {
     }
 
 
+
     /**
      * 根据标题获取文章详情
      * // TODO 本接口未来可以记录用户是否阅读该篇文章，用于推荐分析
@@ -99,6 +101,37 @@ public class Controller {
 
 
     /**
+     * 获取指定天数的文章
+     * @param wxid
+     * @param days
+     * @return
+     */
+    @GetMapping("getTitlesByDay")
+    public Result<Map<Long,List<String>>> getTitlesByDay(String wxid, Integer days) {
+
+        checkParam(wxid, days);
+
+        // 获取历史推荐
+        Map<Long,List<String>> recmdTitleAllMap = redisDAO.getUser(wxid).getRecmdTitleMap();
+
+        // 只取前day天的推荐
+        Map<Long,List<String>> recmdTitlePreDaysMap = Maps.newTreeMap();
+        int count = 0;
+        for (Long key : recmdTitleAllMap.keySet()) {
+            if (count < days) {
+                recmdTitlePreDaysMap.put(key, recmdTitleAllMap.get(key));
+            } else {
+                break;
+            }
+        }
+
+        return Result.newSuccessResult(recmdTitlePreDaysMap);
+
+    }
+
+
+
+    /**
      * 参数校验
      * @param wxid
      * @param categoryIds
@@ -108,6 +141,23 @@ public class Controller {
         if (StringUtils.isEmpty(wxid)
                 || StringUtils.isEmpty(categoryIds)) {
             throw new CommonBizException(ExpCodeEnum.PARAM_NULL);
+        }
+
+        // wxid是否存在
+        User user = redisDAO.getUser(wxid);
+        if (user == null) {
+            throw new CommonBizException(ExpCodeEnum.USER_NO_EXIST);
+        }
+    }
+
+    private void checkParam(String wxid, Integer days) {
+
+        if (StringUtils.isEmpty(wxid)) {
+            throw new CommonBizException(ExpCodeEnum.PARAM_NULL);
+        }
+
+        if (days==null || days<=0) {
+            throw new CommonBizException(ExpCodeEnum.DAYS_INVALID);
         }
 
         // wxid是否存在

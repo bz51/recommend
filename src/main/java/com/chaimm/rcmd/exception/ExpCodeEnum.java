@@ -20,7 +20,7 @@ public enum ExpCodeEnum implements Serializable {
     SESSION_NULL("004", "请求头中SessionId不存在"),
     HTTP_REQ_METHOD_ERROR("005", "HTTP请求方法不正确"),
     JSONERROR("006", "JSON解析异常"),
-    USER_NO_EXIST("006", "wxid对应的用户不存在"), ARTICLE_NO_EXIST("007", "文章不存在");
+    USER_NO_EXIST("006", "wxid对应的用户不存在"), ARTICLE_NO_EXIST("007", "文章不存在"), DAYS_INVALID("008", "days必须大于0");
 
 
     private String code;

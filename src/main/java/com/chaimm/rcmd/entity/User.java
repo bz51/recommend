@@ -25,8 +25,8 @@ public class User implements Serializable {
     /** 用户订阅的文章类别 key-类别ID，value-用户对该类别的感兴趣程度 */
     private Map<String, Object> categoryMap = Maps.newHashMap();
 
-    /** 日期-文章列表的Map(只存文章标题) */
-    private Map<Long, List<String>> recmdTitleMap = Maps.newHashMap();
+    /** 日期-文章列表的Map(只存文章标题)(采用TreeMap，根据Long大小排序) */
+    private Map<Long, List<String>> recmdTitleMap = Maps.newTreeMap();
 
     public String getWxid() {
         return wxid;
