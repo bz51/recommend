@@ -27,8 +27,8 @@ public class RedisDAO {
 
 
     /** 所有文章title在Redis中的namespace */
-    @Value("${redis.namespace.all-titles}")
-    private String allTitlesNamespace;
+    @Value("${redis.namespace.all-article}")
+    private String allArticleNamespace;
 
     /**
      * 添加新文章
@@ -42,13 +42,13 @@ public class RedisDAO {
         HashOperations opsForHash = redisTemplate.opsForHash();
 
         if (!CollectionUtils.isEmpty(categorySet)) {
-            // 1. 将文章添加进相应类别下
+            // 1. 将文章标题添加进相应类别下
             for (Category category : categorySet) {
-                opsForZSet.add(category.getId(), article, article.getWeight());
+                opsForZSet.add(category.getId(), article.getTitle(), article.getWeight());
             }
 
-            // 2. 将文章标题添加进 所有文章的集合中(供文章重复性检测)(只是用Hash的Key，存储title，value为null，这样判断标题是否存在时时间复杂度低)
-            opsForHash.put(allTitlesNamespace, article.getTitle(), null);
+            // 2. 将文章添加进 所有文章的集合中(供文章重复性检测)
+            opsForHash.put(allArticleNamespace, article.getTitle(), article);
         }
     }
 
@@ -59,7 +59,7 @@ public class RedisDAO {
      */
     public boolean hasArticle(String title) {
         HashOperations opsForHash = redisTemplate.opsForHash();
-        return opsForHash.hasKey(allTitlesNamespace, title);
+        return opsForHash.hasKey(allArticleNamespace, title);
     }
 
     /**

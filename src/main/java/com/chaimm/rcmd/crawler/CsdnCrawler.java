@@ -68,7 +68,7 @@ public class CsdnCrawler extends Crawler {
         // 初始化线程池
         this.initExecutor();
 
-        CsdnCrawlerTask task1 = new CsdnCrawlerTask(1,5);
+        CsdnCrawlerTask task1 = new CsdnCrawlerTask(6,10);
 
         executor.submit(task1);
 //        executor.submit(task2);
