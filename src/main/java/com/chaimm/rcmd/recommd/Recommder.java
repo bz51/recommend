@@ -36,20 +36,20 @@ public class Recommder {
      * @param wxid
      * @return
      */
-    public List<Article> recommend(String wxid) {
+    public List<String> recommend(String wxid) {
 
         // 获取用户详情
         User user = redisDAO.getUser(wxid);
 
         // 获取今天的推荐文章
-        List<Article> articleList = getTodayArticle(user);
-        if (!CollectionUtils.isEmpty(articleList)) {
-            return articleList;
+        List<String> titleList = getTodayArticle(user);
+        if (!CollectionUtils.isEmpty(titleList)) {
+            return titleList;
         }
 
         // 计算今天的推荐文章
-        articleList = calTodayArticle(user);
-        return articleList;
+        titleList = calTodayArticle(user);
+        return titleList;
     }
 
 
@@ -58,18 +58,18 @@ public class Recommder {
      * @param user
      * @return
      */
-    private List<Article> calTodayArticle(User user) {
+    private List<String> calTodayArticle(User user) {
 
         // 计算用户感兴趣类别文章数量
         Map<String, Integer> categoryNumMap = calCategoryNum(user);
 
         // 获取文章
-        List<Article> articleList = getArticleByCategoryNum(categoryNumMap);
+        List<String> titleList = getArticleByCategoryNum(categoryNumMap);
 
         // 将今日推荐文章加入user对象
-        addIntoRedisUser(user, articleList);
+        addIntoRedisUser(user, titleList);
 
-        return articleList;
+        return titleList;
     }
 
 
@@ -77,15 +77,9 @@ public class Recommder {
     /**
      * 将今日推荐文章加入user对象
      * @param user
-     * @param articleList
+     * @param titleList
      */
-    private void addIntoRedisUser(User user, List<Article> articleList) {
-
-        // 将List<Article>——>List<String>
-        List<String> titleList = Lists.newArrayList();
-        for (Article article : articleList) {
-            titleList.add(article.getTitle());
-        }
+    private void addIntoRedisUser(User user, List<String> titleList) {
 
         // 获取今日零点零时零分零秒的毫秒数
         Long today = getTodayMillis();
@@ -103,9 +97,9 @@ public class Recommder {
      * @param categoryNumMap
      * @return
      */
-    private List<Article> getArticleByCategoryNum(Map<String, Integer> categoryNumMap) {
+    private List<String> getArticleByCategoryNum(Map<String, Integer> categoryNumMap) {
 
-        List<Article> articleList = Lists.newArrayList();
+        List<String> titleList = Lists.newArrayList();
         for (String categoryId : categoryNumMap.keySet()) {
 
             // 获取该类下num篇文章标题
@@ -114,17 +108,13 @@ public class Recommder {
 
             if (!CollectionUtils.isEmpty(titleSet)) {
                 // 将titleSet——>titleList
-                List<String> titleList = Lists.newArrayList();
                 for (String title : titleSet) {
                     titleList.add(title);
                 }
-
-                // 将titleList——>articleList
-                articleList.addAll(this.getArticleByTitle(titleList));
             }
         }
 
-        return articleList;
+        return titleList;
     }
 
 
@@ -171,25 +161,22 @@ public class Recommder {
      * @param user
      * @return
      */
-    private List<Article> getTodayArticle(User user) {
+    private List<String> getTodayArticle(User user) {
 
-        List<Article> articleList = Lists.newArrayList();
+        List<String> titleList = Lists.newArrayList();
 
         // 若整个RecmdTitleMap为空
         if (user.getRecmdTitleMap() == null || user.getRecmdTitleMap().size() <= 0) {
-            return articleList;
+            return titleList;
         }
 
         // 获取今天零点零分零秒的毫秒数
         Long today = getTodayMillis();
 
         // 获取今天的推荐文章标题
-        List<String> rcmdTitleList = user.getRecmdTitleMap().get(today);
+        titleList = user.getRecmdTitleMap().get(today);
 
-        // 获取标题对应的文章
-        articleList = getArticleByTitle(rcmdTitleList);
-
-        return articleList;
+        return titleList;
     }
 
 

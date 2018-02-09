@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -67,10 +68,35 @@ public class Controller {
         setCategoryForUser(wxid, categoryIds);
 
         // 2. 为该用户推荐今日文章
-        List<Article> articleList = recommder.recommend(wxid);
+        List<String> titleList = recommder.recommend(wxid);
 
-        return Result.newSuccessResult(articleList);
+        return Result.newSuccessResult(titleList);
     }
+
+
+    /**
+     * 根据标题获取文章详情
+     * // TODO 本接口未来可以记录用户是否阅读该篇文章，用于推荐分析
+     * @param title
+     * @param wxid 用于记录用户是否阅读的该篇文章
+     * @return
+     */
+    @GetMapping("/getArticleDetailByTitle")
+    public Result<Article> getArticleDetailByTitle(String title, String wxid) {
+
+        if (StringUtils.isEmpty(title)) {
+            throw new CommonBizException(ExpCodeEnum.PARAM_NULL);
+        }
+
+        // 获取Article
+        Article article = redisDAO.getArticleByTitle(title);
+        if (article==null) {
+            throw new CommonBizException(ExpCodeEnum.ARTICLE_NO_EXIST);
+        }
+
+        return Result.newSuccessResult(article);
+    }
+
 
     /**
      * 参数校验
