@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author 大闲人柴毛毛
@@ -66,8 +67,8 @@ public abstract class Analyzer {
     protected List<Article> batchClassify(List<Article> articleList) {
         if (!CollectionUtils.isEmpty(articleList)) {
             for (Article article : articleList) {
-                List<Category> categoryList = classifier.classify(article.getTitle(), article.getTagList());
-                article.setCategoryList(categoryList);
+                Set<Category> categorySet = classifier.classify(article.getTitle(), article.getTagList());
+                article.setCategorySet(categorySet);
             }
         }
         return articleList;

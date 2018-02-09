@@ -167,12 +167,12 @@ public class CsdnCrawler extends Crawler {
                     article.setUrl(url);
 
                     // PS：类别所在的<a>为每条文章列表的第四个<a>标签(部分文章没有分类)
+                    List<String> tagList = Lists.newArrayList(); // PS:这里一定要对tagList初始化，要不然后面可能会出现 空指针
+                    article.setTagList(tagList);
                     if (allA.size()>3) {
                         Element categoryElement = allA.get(3);
                         String category = categoryElement.text();
-                        List<String> tagList = Lists.newArrayList();
                         tagList.add(category);
-                        article.setTagList(tagList);
                     }
 
                     articleList.add(article);

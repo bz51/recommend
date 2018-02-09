@@ -2,12 +2,15 @@ package com.chaimm.rcmd.category;
 
 import com.chaimm.rcmd.entity.Category;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.sun.org.apache.bcel.internal.generic.NEW;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -18,30 +21,35 @@ import java.util.Set;
  */
 public class CategoryFactory {
 
+    private static final Category AI_CATEGORY = new Category("ai", "人工智能", null);
+    private static final Category BLOCKCHAIN_CATEGORY = new Category("blockchain", "区块链", null);
+    private static final Category ARCHITECT_CATEGORY = new Category("architect", "架构", null);
+    private static final Category DB_CATEGORY = new Category("db", "数据库", null);
+    private static final Category FRONT_CATEGORY = new Category("front", "前端", null);
+    private static final Category OPS_CATEGORY = new Category("ops", "运维", null);
+    private static final Category ANDROID_CATEGORY = new Category("android", "Android", null);
+    private static final Category IOS_CATEGORY = new Category("ios", "IOS", null);
+    private static final Category MOBILE_CATEGORY = new Category("mobile", "移动开发", null);
+    private static final Category SECURITY_CATEGORY = new Category("security", "安全", null);
+    private static final Category NEWS_CATEGORY = new Category("news", "新闻咨询", null);
+    private static final Category GAME_CATEGORY = new Category("game", "游戏", null);
+    private static final Category CLOUD_CATEGORY = new Category("cloud", "云计算/大数据", null);
+    private static final Category WORK_CATEGORY = new Category("work", "求职", null);
+    private static final Category LIFE_CATEGORY = new Category("life", "职场/生活", null);
+    private static final Category BASE_CATEGORY = new Category("base", "计算机基础", null);
+    private static final Category TEST_CATEGORY = new Category("test", "测试", null);
+    private static final Category PRODUCT_CATEGORY = new Category("product", "产品与运营", null);
+    private static final Category JAVA_CATEGORY = new Category("java", "Java", null);
+    private static final Category PYTHON_CATEGORY = new Category("python", "Python", null);
+    private static final Category CC_CATEGORY = new Category("cc++", "C/C++", null);
+    private static final Category LANGUAGE_CATEGORY = new Category("language", "编程语言", null);
+    public static final Category OTHER_CATEGORY = new Category("other", "其他", null);
+
     public static final List<Category> allCategoryList = Arrays.asList(
-        new Category("ai", "人工智能", null),
-        new Category("blockchain", "区块链", null),
-        new Category("architect", "架构", null),
-        new Category("db", "数据库", null),
-        new Category("front", "前端", null),
-        new Category("ops", "运维", null),
-        new Category("android", "Android", null),
-        new Category("ios", "IOS", null),
-        new Category("mobile", "移动开发", null),
-        new Category("security", "安全", null),
-        new Category("news", "新闻咨询", null),
-        new Category("game", "游戏", null),
-        new Category("cloud", "云计算/大数据", null),
-        new Category("work", "求职", null),
-        new Category("life", "职场/生活", null),
-        new Category("base", "计算机基础", null),
-        new Category("test", "测试", null),
-        new Category("product", "产品与运营", null),
-        new Category("java", "Java", null),
-        new Category("python", "Python", null),
-        new Category("cc++", "C/C++", null),
-        new Category("language", "编程语言", null),
-        new Category("other", "其他", null)
+        AI_CATEGORY,BLOCKCHAIN_CATEGORY,ARCHITECT_CATEGORY,DB_CATEGORY,FRONT_CATEGORY,OPS_CATEGORY,
+            ANDROID_CATEGORY,IOS_CATEGORY,MOBILE_CATEGORY,SECURITY_CATEGORY,NEWS_CATEGORY,GAME_CATEGORY,
+            CLOUD_CATEGORY,WORK_CATEGORY,LIFE_CATEGORY,BASE_CATEGORY,TEST_CATEGORY,PRODUCT_CATEGORY,
+            JAVA_CATEGORY,PYTHON_CATEGORY,CC_CATEGORY,LANGUAGE_CATEGORY,OTHER_CATEGORY
     );
 
     /** 人工智能 */
@@ -161,12 +169,31 @@ public class CategoryFactory {
 
     );
 
-    public static final List<Set<String>> CATEGORY_SET_LIST = Lists.newArrayList(
-            AI_CATEGORY_SET,BLOCKCHAIN_CATEGORY_SET,ARCHITECT_CATEGORY_SET,DB_CATEGORY_SET,FRONT_CATEGORY_SET,
-            OPS_CATEGORY_SET,ANDROID_CATEGORY_SET,IOS_CATEGORY_SET,MOBILE_CATEGORY_SET,SECURITY_CATEGORY_SET,
-            NEWS_CATEGORY_SET,GAME_CATEGORY_SET,CLOUD_CATEGORY_SET,WORK_CATEGORY_SET,LIFE_CATEGORY_SET,
-            BASE_CATEGORY_SET,TEST_CATEGORY_SET,PRODUCT_CATEGORY_SET,PYTHON_CATEGORY_SET,JAVA_CATEGORY_SET,
-            CC_CATEGORY_SET,LANGUAGE_CATEGORY_SET,OTHER_CATEGORY_SET
-    );
+    public static final Map<Category, Set<String>> CATEGORY_SET_MAP = Maps.newHashMap();
 
+    static {
+        CATEGORY_SET_MAP.put(AI_CATEGORY,AI_CATEGORY_SET);
+        CATEGORY_SET_MAP.put(BLOCKCHAIN_CATEGORY,BLOCKCHAIN_CATEGORY_SET);
+        CATEGORY_SET_MAP.put(ARCHITECT_CATEGORY,ARCHITECT_CATEGORY_SET);
+        CATEGORY_SET_MAP.put(DB_CATEGORY,DB_CATEGORY_SET);
+        CATEGORY_SET_MAP.put(FRONT_CATEGORY,FRONT_CATEGORY_SET);
+        CATEGORY_SET_MAP.put(OPS_CATEGORY,OPS_CATEGORY_SET);
+        CATEGORY_SET_MAP.put(ANDROID_CATEGORY,ANDROID_CATEGORY_SET);
+        CATEGORY_SET_MAP.put(IOS_CATEGORY,IOS_CATEGORY_SET);
+        CATEGORY_SET_MAP.put(MOBILE_CATEGORY,MOBILE_CATEGORY_SET);
+        CATEGORY_SET_MAP.put(SECURITY_CATEGORY,SECURITY_CATEGORY_SET);
+        CATEGORY_SET_MAP.put(NEWS_CATEGORY,NEWS_CATEGORY_SET);
+        CATEGORY_SET_MAP.put(GAME_CATEGORY,GAME_CATEGORY_SET);
+        CATEGORY_SET_MAP.put(CLOUD_CATEGORY,CLOUD_CATEGORY_SET);
+        CATEGORY_SET_MAP.put(WORK_CATEGORY,WORK_CATEGORY_SET);
+        CATEGORY_SET_MAP.put(LIFE_CATEGORY,LIFE_CATEGORY_SET);
+        CATEGORY_SET_MAP.put(CC_CATEGORY,CC_CATEGORY_SET);
+        CATEGORY_SET_MAP.put(BASE_CATEGORY,BASE_CATEGORY_SET);
+        CATEGORY_SET_MAP.put(TEST_CATEGORY,TEST_CATEGORY_SET);
+        CATEGORY_SET_MAP.put(PRODUCT_CATEGORY,PRODUCT_CATEGORY_SET);
+        CATEGORY_SET_MAP.put(PYTHON_CATEGORY,PYTHON_CATEGORY_SET);
+        CATEGORY_SET_MAP.put(JAVA_CATEGORY,JAVA_CATEGORY_SET);
+        CATEGORY_SET_MAP.put(LANGUAGE_CATEGORY,LANGUAGE_CATEGORY_SET);
+        CATEGORY_SET_MAP.put(OTHER_CATEGORY,OTHER_CATEGORY_SET);
+    }
 }

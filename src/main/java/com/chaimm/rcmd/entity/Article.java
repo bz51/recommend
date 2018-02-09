@@ -7,6 +7,7 @@ import org.springframework.data.annotation.Transient;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author 大闲人柴毛毛
@@ -49,7 +50,7 @@ public class Article implements Serializable {
     private Timestamp postTime;
 
     /** 文章所属类别 */
-    private List<Category> categoryList;
+    private Set<Category> categorySet;
 
     /** 文章标签列表，仅供分类器参考，不持久化 */
     @Transient
@@ -157,12 +158,12 @@ public class Article implements Serializable {
         this.postTime = postTime;
     }
 
-    public List<Category> getCategoryList() {
-        return categoryList;
+    public Set<Category> getCategorySet() {
+        return categorySet;
     }
 
-    public void setCategoryList(List<Category> categoryList) {
-        this.categoryList = categoryList;
+    public void setCategorySet(Set<Category> categorySet) {
+        this.categorySet = categorySet;
     }
 
     public StateEnum getState() {
@@ -204,7 +205,7 @@ public class Article implements Serializable {
                 ", author='" + author + '\'' +
                 ", crawlTime=" + crawlTime +
                 ", postTime=" + postTime +
-                ", categoryList=" + categoryList +
+                ", categorySet=" + categorySet +
                 ", tagList=" + tagList +
                 ", weight=" + weight +
                 ", state=" + state +

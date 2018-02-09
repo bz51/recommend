@@ -36,14 +36,14 @@ public class RedisDAO {
      */
     public void addArticle(Article article) {
 
-        List<Category> categoryList = article.getCategoryList();
+        Set<Category> categorySet = article.getCategorySet();
 
         ZSetOperations opsForZSet = redisTemplate.opsForZSet();
         HashOperations opsForHash = redisTemplate.opsForHash();
 
-        if (!CollectionUtils.isEmpty(categoryList)) {
+        if (!CollectionUtils.isEmpty(categorySet)) {
             // 1. 将文章添加进相应类别下
-            for (Category category : categoryList) {
+            for (Category category : categorySet) {
                 opsForZSet.add(category.getId(), article, article.getWeight());
             }
 
@@ -70,9 +70,9 @@ public class RedisDAO {
     public void updateArticle(Article article) {
         ZSetOperations ops = redisTemplate.opsForZSet();
 
-        List<Category> categoryList = article.getCategoryList();
-        if (!CollectionUtils.isEmpty(categoryList)) {
-            for (Category category : categoryList) {
+        Set<Category> categorySet = article.getCategorySet();
+        if (!CollectionUtils.isEmpty(categorySet)) {
+            for (Category category : categorySet) {
                 // 1. 删除ZSet中该篇文章
                 ops.remove(category.getId(), article);
                 // 2. 向ZSet添加该篇文章
