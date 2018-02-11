@@ -1,6 +1,8 @@
 package com.chaimm.rcmd.controller;
 
+import com.chaimm.rcmd.category.CategoryFactory;
 import com.chaimm.rcmd.entity.Article;
+import com.chaimm.rcmd.entity.Category;
 import com.chaimm.rcmd.entity.Result;
 import com.chaimm.rcmd.entity.User;
 import com.chaimm.rcmd.exception.CommonBizException;
@@ -32,6 +34,34 @@ public class Controller {
 
     @Autowired
     private Recommder recommder;
+
+
+    /**
+     * 获取所有类别
+     * @return
+     */
+    @GetMapping("getAllCategories")
+    public Result<List<Category>> getAllCategories() {
+        return Result.newSuccessResult(CategoryFactory.allCategoryList);
+    }
+
+
+    /**
+     * 创建用户 并 为让用户选择类别
+     * @param wxid
+     * @param categoryIds
+     * @return
+     */
+    @GetMapping("createUserAndSelectCategory")
+    public Result<List<String>> createUserAndSelectCategory(String wxid, String categoryIds) {
+
+        // 创建用户
+        createUser(wxid);
+
+        // 为用户添加感兴趣的类别
+        return createCategoryForUser(wxid, categoryIds);
+    }
+
 
     /**
      * 创建用户

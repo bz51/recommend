@@ -41,7 +41,7 @@ public class CategoryFactory {
     private static final Category PRODUCT_CATEGORY = new Category("product", "产品与运营", null);
     private static final Category JAVA_CATEGORY = new Category("java", "Java", null);
     private static final Category PYTHON_CATEGORY = new Category("python", "Python", null);
-    private static final Category CC_CATEGORY = new Category("cc++", "C/C++", null);
+    private static final Category CC_CATEGORY = new Category("cc", "C/C++", null);
     private static final Category LANGUAGE_CATEGORY = new Category("language", "编程语言", null);
     public static final Category OTHER_CATEGORY = new Category("other", "其他", null);
 
