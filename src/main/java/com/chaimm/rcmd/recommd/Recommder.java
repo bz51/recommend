@@ -202,6 +202,38 @@ public class Recommder {
         return articleList;
     }
 
+    /**
+     * 根据标题获取文章 摘要（不包含文章内容）
+     * @param rcmdTitleList
+     * @return
+     */
+    public List<Article> getArticleAbsByTitle(List<String> rcmdTitleList) {
+
+        // 获取文章全部信息
+        List<Article> articleList = this.getArticleByTitle(rcmdTitleList);
+
+        // 剔除文章内容
+        articleList = filterArticleContent(articleList);
+
+        return articleList;
+    }
+
+
+    /**
+     * 剔除文章中的内容
+     * @param articleList
+     * @return
+     */
+    private List<Article> filterArticleContent(List<Article> articleList) {
+        if (!CollectionUtils.isEmpty(articleList)) {
+            for (Article article : articleList) {
+                article.setContent(null);
+            }
+        }
+
+        return articleList;
+    }
+
 
     /**
      * 获取今天零点零分零秒的毫秒数

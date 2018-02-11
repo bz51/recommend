@@ -39,11 +39,11 @@ public class Controller {
     @Autowired
     private Recommder recommder;
 
-    @Value("#{WX.APPID}")
+    @Value("${WX.APPID}")
     private String APPID;
-    @Value("#{WX.SECRET}")
+    @Value("${WX.SECRET}")
     private String SECRET;
-    @Value("#{WX.WxLoginUrl}")
+    @Value("${WX.WxLoginUrl}")
     private String WxLoginUrl;
 
 
@@ -61,10 +61,10 @@ public class Controller {
      * 创建用户 并 为让用户选择类别
      * @param wxid
      * @param categoryIds
-     * @return
+     * @return 文章列表（文章中没有详情，详情需要再次请求获取）
      */
     @GetMapping("createUserAndSelectCategory")
-    public Result<List<String>> createUserAndSelectCategory(String wxid, String categoryIds) {
+    public Result<List<Article>> createUserAndSelectCategory(String wxid, String categoryIds) {
 
         // 创建用户
         createUser(wxid);
@@ -101,7 +101,7 @@ public class Controller {
      * @return
      */
     @GetMapping("selectCategory")
-    public Result createCategoryForUser(String wxid, String categoryIds) {
+    public Result<List<Article>> createCategoryForUser(String wxid, String categoryIds) {
 
         // 0. 参数校验
         checkParam(wxid, categoryIds);
@@ -112,7 +112,10 @@ public class Controller {
         // 2. 为该用户推荐今日文章
         List<String> titleList = recommder.recommend(wxid);
 
-        return Result.newSuccessResult(titleList);
+        // 3. 获取文章摘要信息
+        List<Article> articleAbsList = recommder.getArticleAbsByTitle(titleList);
+
+        return Result.newSuccessResult(articleAbsList);
     }
 
 
@@ -148,7 +151,7 @@ public class Controller {
      * @return
      */
     @GetMapping("getTitlesByDay")
-    public Result<Map<Long,List<String>>> getTitlesByDay(String wxid, Integer days) {
+    public Result<Map<Long,List<Article>>> getTitlesByDay(String wxid, Integer days) {
 
         checkParam(wxid, days);
 
@@ -156,17 +159,21 @@ public class Controller {
         Map<Long,List<String>> recmdTitleAllMap = redisDAO.getUser(wxid).getRecmdTitleMap();
 
         // 只取前day天的推荐
-        Map<Long,List<String>> recmdTitlePreDaysMap = Maps.newTreeMap();
+        Map<Long,List<Article>> recmdArticleAbsPreDaysMap = Maps.newTreeMap();
         int count = 0;
         for (Long key : recmdTitleAllMap.keySet()) {
             if (count < days) {
-                recmdTitlePreDaysMap.put(key, recmdTitleAllMap.get(key));
+                // 获取标题列表
+                List<String> titleList = recmdTitleAllMap.get(key);
+                // 获取摘要列表
+                List<Article> articleAbsList = recommder.getArticleAbsByTitle(titleList);
+                recmdArticleAbsPreDaysMap.put(key, articleAbsList);
             } else {
                 break;
             }
         }
 
-        return Result.newSuccessResult(recmdTitlePreDaysMap);
+        return Result.newSuccessResult(recmdArticleAbsPreDaysMap);
 
     }
 
