@@ -1,5 +1,7 @@
 package com.chaimm.rcmd.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.chaimm.rcmd.category.CategoryFactory;
 import com.chaimm.rcmd.entity.Article;
 import com.chaimm.rcmd.entity.Category;
@@ -9,11 +11,13 @@ import com.chaimm.rcmd.exception.CommonBizException;
 import com.chaimm.rcmd.exception.ExpCodeEnum;
 import com.chaimm.rcmd.recommd.Recommder;
 import com.chaimm.rcmd.redis.RedisDAO;
+import com.chaimm.rcmd.util.HttpClientUtil;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -34,6 +38,13 @@ public class Controller {
 
     @Autowired
     private Recommder recommder;
+
+    @Value("#{WX.APPID}")
+    private String APPID;
+    @Value("#{WX.SECRET}")
+    private String SECRET;
+    @Value("#{WX.WxLoginUrl}")
+    private String WxLoginUrl;
 
 
     /**
@@ -157,6 +168,30 @@ public class Controller {
 
         return Result.newSuccessResult(recmdTitlePreDaysMap);
 
+    }
+
+
+    /**
+     * 获取微信openID
+     * @param code
+     * @return
+     */
+    @RequestMapping(value = "/wxLogin", method = RequestMethod.GET)
+    @ResponseBody
+    public Result<String> wxLogin(String code){
+        Map<String,String> params = Maps.newHashMap();
+        String resultJsonStr = new HttpClientUtil().doPost(WxLoginUrl+"?appid="+APPID+"&secret="+SECRET+"&js_code="+code+"&grant_type=authorization_code",params,"utf-8");
+        JSONObject resultJson = JSON.parseObject(resultJsonStr);
+
+        // 请求失败
+        if (StringUtils.isNotEmpty(resultJson.getString("errcode"))) {
+            throw new CommonBizException(ExpCodeEnum.WX_ERROR);
+        }
+
+        // 请求成功：获取openid
+        String openId = resultJson.getString("openid");
+
+        return Result.newSuccessResult(openId);
     }
 
 
