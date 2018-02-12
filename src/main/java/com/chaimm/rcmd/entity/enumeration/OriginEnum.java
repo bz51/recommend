@@ -7,7 +7,7 @@ package com.chaimm.rcmd.entity.enumeration;
  */
 public enum OriginEnum implements BaseEnum {
     CSDN(1, "CSDN"),
-    INFOQ(2, "Infoq"),
+    INFOQ(2, "INFOQ"),
     JUEJIN(3, "掘金"),
     ;
 

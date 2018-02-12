@@ -55,7 +55,7 @@ public class CategoryFactory {
     /** 人工智能 */
     public static final Set<String> AI_CATEGORY_SET = Sets.newHashSet(
         "人工智能","机器学习","神经网络","自主计算","分类","聚类","卷积","卷积神经网络","决策树",
-            "深度学习","自然语言处理","自然语言","监督学习","无监督学习","无监督学习",""
+            "深度学习","自然语言处理","自然语言","监督学习","无监督学习","无监督学习","数据"
     );
 
     /** 区块链 */
@@ -81,7 +81,7 @@ public class CategoryFactory {
 
     /** 运维 */
     public static final Set<String> OPS_CATEGORY_SET = Sets.newHashSet(
-        "运维"
+        "运维","DevOps"
     );
 
     /** Android */
@@ -121,12 +121,12 @@ public class CategoryFactory {
 
     /** 工作/求职 */
     public static final Set<String> WORK_CATEGORY_SET = Sets.newHashSet(
-        "面试","面筋","面经","职场"
+        "面试","面筋","面经","职场","文化"
     );
 
     /** 生活 */
     public static final Set<String> LIFE_CATEGORY_SET = Sets.newHashSet(
-        "生活"
+        "生活","文化"
     );
 
     /** 计算机基础 */
@@ -161,7 +161,7 @@ public class CategoryFactory {
 
     /** 语言 */
     public static final Set<String> LANGUAGE_CATEGORY_SET = Sets.newHashSet(
-        "编程语言","java","python","c","c++","js","javascript"
+        "编程语言","java","python","c","c++","js","javascript","语言"
     );
 
     /** 其他 */

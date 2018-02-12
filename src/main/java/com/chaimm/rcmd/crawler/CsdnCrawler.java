@@ -2,6 +2,7 @@ package com.chaimm.rcmd.crawler;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.chaimm.rcmd.analyzer.Analyzer;
 import com.chaimm.rcmd.analyzer.CsdnAnalyzer;
 import com.chaimm.rcmd.entity.Article;
 import com.google.common.collect.Lists;
@@ -12,6 +13,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -35,29 +37,42 @@ public class CsdnCrawler extends Crawler {
 
     /** CSDN平台的数据解析器，负责将爬到的数据解析成Article对象，最终持久化 */
     @Autowired
-    private CsdnAnalyzer analyzer;
+    @Qualifier("CsdnAnalyzer")
+    protected Analyzer analyzer;
 
     @Value("${csdn.thread-pool.core-pool-size}")
-    private int csdnThreadPoolCorePoolSize;
+    protected int threadPoolCorePoolSize;
 
     @Value("${csdn.thread-pool.max-pool-size}")
-    private int csdnThreadPoolMaxPoolSize;
+    protected int threadPoolMaxPoolSize;
 
     @Value("${csdn.thread-pool.keep-alive-time}")
-    private int csdnThreadPoolKeepAliveTime;
-
-    /** 每个爬虫私有的线程池 */
-    private ThreadPoolExecutor executor;
+    protected int threadPoolKeepAliveTime;
 
     /** 本平台爬虫的启动时间(h) */
     @Value("${csdn.start-delay-time}")
-    private long startDelayTime;
+    protected long startDelayTime;
 
     /** 本平台爬虫的间隔时间执行(h) (从上一次定时任务执行完成后开始计时) */
     @Value("${csdn.period}")
-    private long period;
+    protected long period;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+
+
+    /**
+     * 初始化线程池
+     */
+    @Override
+    protected void initExecutor() {
+        this.executor = new ThreadPoolExecutor(
+                threadPoolCorePoolSize,
+                threadPoolMaxPoolSize,
+                threadPoolKeepAliveTime,
+                TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>());
+    }
+
 
 
     /**
@@ -70,7 +85,7 @@ public class CsdnCrawler extends Crawler {
 
         CsdnCrawlerTask task1 = new CsdnCrawlerTask(6,10);
 
-        executor.submit(task1);
+//        executor.submit(task1);
 //        executor.submit(task2);
 //        executor.submit(task3);
 //        executor.submit(task4);
@@ -85,17 +100,6 @@ public class CsdnCrawler extends Crawler {
     }
 
 
-    /**
-     * 初始化线程池
-     */
-    public void initExecutor() {
-        this.executor = new ThreadPoolExecutor(
-                csdnThreadPoolCorePoolSize,
-                csdnThreadPoolMaxPoolSize,
-                csdnThreadPoolKeepAliveTime,
-                TimeUnit.SECONDS,
-                new LinkedBlockingQueue<>());
-    }
 
 
     /**
@@ -239,59 +243,20 @@ public class CsdnCrawler extends Crawler {
     }
 
 
-
-    /**
-     * 供Starter获取本平台爬虫的启动时延
-     * @return
-     */
     @Override
     public long getStartDelayTime() {
-        return startDelayTime;
+        return this.startDelayTime;
     }
 
-    /**
-     * 供Starter获取本平台爬虫的执行间隔
-     * @return
-     */
     @Override
     public long getPeriod() {
-        return period;
+        return this.period;
     }
+
 
     @Override
     public String getCrawlerName() {
         return "CSDN";
     }
 
-    public int getCsdnThreadPoolCorePoolSize() {
-        return csdnThreadPoolCorePoolSize;
-    }
-
-    public void setCsdnThreadPoolCorePoolSize(int csdnThreadPoolCorePoolSize) {
-        this.csdnThreadPoolCorePoolSize = csdnThreadPoolCorePoolSize;
-    }
-
-    public int getCsdnThreadPoolMaxPoolSize() {
-        return csdnThreadPoolMaxPoolSize;
-    }
-
-    public void setCsdnThreadPoolMaxPoolSize(int csdnThreadPoolMaxPoolSize) {
-        this.csdnThreadPoolMaxPoolSize = csdnThreadPoolMaxPoolSize;
-    }
-
-    public int getCsdnThreadPoolKeepAliveTime() {
-        return csdnThreadPoolKeepAliveTime;
-    }
-
-    public void setCsdnThreadPoolKeepAliveTime(int csdnThreadPoolKeepAliveTime) {
-        this.csdnThreadPoolKeepAliveTime = csdnThreadPoolKeepAliveTime;
-    }
-
-    public void setStartDelayTime(long startDelayTime) {
-        this.startDelayTime = startDelayTime;
-    }
-
-    public void setPeriod(long period) {
-        this.period = period;
-    }
 }

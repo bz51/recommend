@@ -6,11 +6,14 @@ import com.chaimm.rcmd.entity.Article;
 import com.chaimm.rcmd.entity.Category;
 import com.chaimm.rcmd.redis.RedisDAO;
 import com.google.common.collect.Lists;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
@@ -58,6 +61,32 @@ public abstract class Analyzer {
         // 插入Redis
         insertRedis(articleList);
     }
+
+
+    /**
+     * 批量解析文章详情
+     * @param articleList
+     * @return
+     */
+    protected List<Article> batchAnalysisArticleDetail(List<Article> articleList) {
+        if (!CollectionUtils.isEmpty(articleList)) {
+            for (Article article : articleList) {
+                try {
+                    // 获取文章详情页Document
+                    Document document = Jsoup.connect(article.getUrl()).get();
+                    // 解析文章内容
+                    analysisArticleDetail(document, article);
+                } catch (IOException e) {
+                    // TODO 考虑异常如何处理
+                    logger.error("###############获取文章详情失败################");
+                    e.printStackTrace();
+                }
+            }
+        }
+        return articleList;
+    }
+
+
 
     /**
      * 文章批量分类
@@ -108,7 +137,12 @@ public abstract class Analyzer {
     }
 
 
-    protected abstract List<Article> batchAnalysisArticleDetail(List<Article> articleList);
+    /**
+     * 将Document中信息解析成Article
+     * @param document
+     * @param article
+     */
+    protected abstract Article analysisArticleDetail(Document document, Article article);
 
 
     /**
@@ -130,7 +164,7 @@ public abstract class Analyzer {
         if (!CollectionUtils.isEmpty(articleList)) {
             for (Article article : articleList) {
                 redisDAO.addArticle(article);
-                logger.info("《"+article.getTitle()+"》入库成功！");
+                logger.info("《"+article.getTitle()+"》-"+article.getCategorySet().toString()+"-入库成功！");
             }
         }
     }

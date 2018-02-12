@@ -27,27 +27,8 @@ import java.util.List;
  *
  * @description CSDN平台的数据解析器
  */
-@Component
+@Component("CsdnAnalyzer")
 public class CsdnAnalyzer extends Analyzer {
-
-    @Override
-    protected List<Article> batchAnalysisArticleDetail(List<Article> articleList) {
-        if (!CollectionUtils.isEmpty(articleList)) {
-            for (Article article : articleList) {
-                try {
-                    // 获取文章详情页Document
-                    Document document = Jsoup.connect(article.getUrl()).get();
-                    // 解析文章内容
-                    analysisArticleDetail(document, article);
-                } catch (IOException e) {
-                    // TODO 考虑异常如何处理
-                    logger.error("###############获取文章详情失败################");
-                    e.printStackTrace();
-                }
-            }
-        }
-        return articleList;
-    }
 
     /**
      * 解析文章的内容
@@ -55,7 +36,8 @@ public class CsdnAnalyzer extends Analyzer {
      * @param article
      * @return
      */
-    private Article analysisArticleDetail(Document document, Article article) {
+    @Override
+    protected Article analysisArticleDetail(Document document, Article article) {
         // 判断新老版本
         if (isOld(document)) {
             return analysisArticleDetailOld(document, article);

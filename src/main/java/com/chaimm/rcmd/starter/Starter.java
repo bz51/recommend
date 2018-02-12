@@ -55,9 +55,6 @@ public class Starter implements CommandLineRunner{
 //        readArticles();
     }
 
-    private void readArticles() {
-        redisDAO.readArticles();
-    }
 
     /**
      * 启动各个平台的爬虫

@@ -2,6 +2,7 @@ package com.chaimm.rcmd.entity;
 
 import com.chaimm.rcmd.entity.enumeration.OriginEnum;
 import com.chaimm.rcmd.entity.enumeration.StateEnum;
+import com.google.common.collect.Lists;
 import org.springframework.data.annotation.Transient;
 
 import java.io.Serializable;
@@ -54,7 +55,7 @@ public class Article implements Serializable {
 
     /** 文章标签列表，仅供分类器参考，不持久化 */
     @Transient
-    private List<String> tagList;
+    private List<String> tagList = Lists.newArrayList();
 
     /** 权重 */
     private float weight;

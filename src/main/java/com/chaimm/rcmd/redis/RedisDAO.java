@@ -34,7 +34,6 @@ public class RedisDAO {
     /** 用户信息的命名空间 */
     @Value("${redis.namespace.users}")
     private String userNamespace;
-    private Article articleByTitle;
 
     /**
      * 添加新文章
