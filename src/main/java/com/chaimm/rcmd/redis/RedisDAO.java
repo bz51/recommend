@@ -135,10 +135,22 @@ public class RedisDAO {
      * @param num
      * @return
      */
-    public Set<String> getTitleByCategory(String categoryId, int num) {
+    public Set<String> getTitleByCategory(String categoryId, int start, int num) {
 
         ZSetOperations ops = redisTemplate.opsForZSet();
-        return ops.range(categoryId, 0, num-1);
+        return ops.range(categoryId, 0, start+num-1);
 
+    }
+
+
+    /**
+     * 获取指定类别中文章的总数
+     * @param categoryId
+     * @return
+     */
+    public int getArticleCountByCategory(String categoryId) {
+
+        ZSetOperations ops = redisTemplate.opsForZSet();
+        return ops.size(categoryId).intValue();
     }
 }

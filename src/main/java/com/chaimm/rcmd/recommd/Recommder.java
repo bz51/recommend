@@ -4,17 +4,16 @@ import com.chaimm.rcmd.entity.Article;
 import com.chaimm.rcmd.entity.User;
 import com.chaimm.rcmd.redis.RedisDAO;
 import com.chaimm.rcmd.util.DateUtils;
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * @author 大闲人柴毛毛
@@ -64,8 +63,11 @@ public class Recommder {
         // 计算用户感兴趣类别文章数量
         Map<String, Integer> categoryNumMap = calCategoryNum(user);
 
+        // 获取已经向该用户推荐过的文章
+        HashSet<String> recommenedTitleSet = getRecommenedArticleSet(user.getRecmdTitleMap());
+
         // 获取文章
-        List<String> titleList = getArticleByCategoryNum(categoryNumMap);
+        List<String> titleList = getArticleByCategoryNum(categoryNumMap, recommenedTitleSet);
 
         // 将今日推荐文章加入user对象
         addIntoRedisUser(user, titleList);
@@ -73,6 +75,27 @@ public class Recommder {
         return titleList;
     }
 
+
+    /**
+     * 获取已经向该用户推荐过的文章
+     * @param recmdTitleMap
+     * @return
+     */
+    private HashSet<String> getRecommenedArticleSet(Map<Long, List<String>> recmdTitleMap) {
+        HashSet<String> titleSet = Sets.newHashSet();
+
+        if (recmdTitleMap==null || recmdTitleMap.isEmpty()) {
+            return titleSet;
+        }
+
+        for (List<String> titleListByDay : recmdTitleMap.values()) {
+            for (String title : titleListByDay) {
+                titleSet.add(title);
+            }
+        }
+
+        return titleSet;
+    }
 
 
     /**
@@ -96,21 +119,32 @@ public class Recommder {
     /**
      * 获取文章
      * @param categoryNumMap
+     * @param recommenedTitleSet
      * @return
      */
-    private List<String> getArticleByCategoryNum(Map<String, Integer> categoryNumMap) {
+    private List<String> getArticleByCategoryNum(Map<String, Integer> categoryNumMap, HashSet<String> recommenedTitleSet) {
 
         List<String> titleList = Lists.newArrayList();
         for (String categoryId : categoryNumMap.keySet()) {
 
             // 获取该类下num篇文章标题
             int num = categoryNumMap.get(categoryId).intValue();
-            Set<String> titleSet = redisDAO.getTitleByCategory(categoryId, num);
 
-            if (!CollectionUtils.isEmpty(titleSet)) {
-                // 将titleSet——>titleList
-                for (String title : titleSet) {
-                    titleList.add(title);
+            // 获取该类别下文章总数
+            int articleTotal = redisDAO.getArticleCountByCategory(categoryId);
+
+            for (int i=0; i<articleTotal && num>0; ) {
+                Set<String> titleSet = redisDAO.getTitleByCategory(categoryId, i, num);
+                i+=num;
+
+                if (!CollectionUtils.isEmpty(titleSet)) {
+                    // 将未推送过的标题加入titleList
+                    for (String title : titleSet) {
+                        if (!recommenedTitleSet.contains(title)) {
+                            titleList.add(title);
+                            num--;
+                        }
+                    }
                 }
             }
         }
