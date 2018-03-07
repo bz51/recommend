@@ -73,9 +73,9 @@ public class InfoqCrawler extends Crawler{
         CrawlerTask crawlerTask4 = new CrawlerTask(31,40);
 
         executor.submit(crawlerTask1);
-        executor.submit(crawlerTask2);
-        executor.submit(crawlerTask3);
-        executor.submit(crawlerTask4);
+//        executor.submit(crawlerTask2);
+//        executor.submit(crawlerTask3);
+//        executor.submit(crawlerTask4);
     }
 
     /**
@@ -176,6 +176,10 @@ public class InfoqCrawler extends Crawler{
                     .getElementsByTag("span").get(0)
                     .getElementsByTag("a").get(0).text();
             article.setAuthor(author);
+
+            // 获取图片
+            String picUrl = element.getElementsByTag("img").get(0).attr("src");
+            article.setPicUrl(picUrl);
 
             return article;
         }

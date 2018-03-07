@@ -60,6 +60,9 @@ public class Article implements Serializable {
     /** 权重 */
     private float weight;
 
+    /** 图片 */
+    private String picUrl;
+
     /** 文章状态 */
     private StateEnum state;
 
@@ -191,6 +194,14 @@ public class Article implements Serializable {
         this.tagList = tagList;
     }
 
+    public String getPicUrl() {
+        return picUrl;
+    }
+
+    public void setPicUrl(String picUrl) {
+        this.picUrl = picUrl;
+    }
+
     @Override
     public String toString() {
         return "Article{" +
@@ -209,6 +220,7 @@ public class Article implements Serializable {
                 ", categorySet=" + categorySet +
                 ", tagList=" + tagList +
                 ", weight=" + weight +
+                ", picUrl='" + picUrl + '\'' +
                 ", state=" + state +
                 '}';
     }

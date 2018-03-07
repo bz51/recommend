@@ -11,6 +11,7 @@ import com.chaimm.rcmd.exception.CommonBizException;
 import com.chaimm.rcmd.exception.ExpCodeEnum;
 import com.chaimm.rcmd.recommd.Recommder;
 import com.chaimm.rcmd.redis.RedisDAO;
+import com.chaimm.rcmd.util.DateUtils;
 import com.chaimm.rcmd.util.HttpClientUtil;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
@@ -157,6 +158,9 @@ public class Controller {
 
         // 获取历史推荐
         Map<Long,List<String>> recmdTitleAllMap = redisDAO.getUser(wxid).getRecmdTitleMap();
+
+        // 加入今日推荐
+        recmdTitleAllMap.put(DateUtils.getTodayMillis(), recommder.recommend(wxid));
 
         // 只取前day天的推荐
         Map<Long,List<Article>> recmdArticleAbsPreDaysMap = Maps.newTreeMap();

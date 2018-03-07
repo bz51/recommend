@@ -36,10 +36,6 @@ public class Starter implements CommandLineRunner{
     @Autowired
     private List<Crawler> crawlerList;
 
-    // TODO 临时使用
-    @Autowired
-    private RedisDAO redisDAO;
-
 
     /**
      * 初始化
@@ -52,7 +48,6 @@ public class Starter implements CommandLineRunner{
         // 启动所有爬虫
         startCrawler();
 
-//        readArticles();
     }
 
 

@@ -3,6 +3,7 @@ package com.chaimm.rcmd.recommd;
 import com.chaimm.rcmd.entity.Article;
 import com.chaimm.rcmd.entity.User;
 import com.chaimm.rcmd.redis.RedisDAO;
+import com.chaimm.rcmd.util.DateUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,7 +83,7 @@ public class Recommder {
     private void addIntoRedisUser(User user, List<String> titleList) {
 
         // 获取今日零点零时零分零秒的毫秒数
-        Long today = getTodayMillis();
+        Long today = DateUtils.getTodayMillis();
 
         // 更新user
         user.getRecmdTitleMap().put(today, titleList);
@@ -171,7 +172,7 @@ public class Recommder {
         }
 
         // 获取今天零点零分零秒的毫秒数
-        Long today = getTodayMillis();
+        Long today = DateUtils.getTodayMillis();
 
         // 获取今天的推荐文章标题
         titleList = user.getRecmdTitleMap().get(today);
@@ -235,18 +236,4 @@ public class Recommder {
     }
 
 
-    /**
-     * 获取今天零点零分零秒的毫秒数
-     * @return
-     */
-    private Long getTodayMillis() {
-
-        // 当前时间毫秒数
-        long current = System.currentTimeMillis();
-
-        // 今天零点零分零秒的毫秒数
-        long zero = current/(1000*3600*24)*(1000*3600*24) - TimeZone.getDefault().getRawOffset();
-
-        return Long.valueOf(zero);
-    }
 }

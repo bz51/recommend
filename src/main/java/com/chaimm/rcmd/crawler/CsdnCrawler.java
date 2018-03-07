@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @description CSDN平台的爬虫
  */
-@Component
+//@Component
 public class CsdnCrawler extends Crawler {
 
     /** CSDN平台的数据解析器，负责将爬到的数据解析成Article对象，最终持久化 */
