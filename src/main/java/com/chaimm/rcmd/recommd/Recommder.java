@@ -140,7 +140,7 @@ public class Recommder {
                 if (!CollectionUtils.isEmpty(titleSet)) {
                     // 将未推送过的标题加入titleList
                     for (String title : titleSet) {
-                        if (!recommenedTitleSet.contains(title)) {
+                        if (!recommenedTitleSet.contains(title) && !titleList.contains(title)) {
                             titleList.add(title);
                             num--;
                         }
