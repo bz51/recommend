@@ -4,6 +4,7 @@ import com.chaimm.rcmd.entity.Article;
 import com.chaimm.rcmd.entity.enumeration.OriginEnum;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -27,11 +28,14 @@ public class InfoqAnalyzer extends Analyzer {
         article.setOrigin(OriginEnum.INFOQ);
 
         // 设置标签
-        String tag = document.getElementsByClass("related__title").get(0)
-                                .getElementsByTag("a").get(0)
-                                .text();
-        List<String> tagList = article.getTagList();
-        tagList.add(tag);
+        Elements tagEles = document.getElementsByClass("related__title");
+        if (!tagEles.isEmpty()) {
+            String tag = document.getElementsByClass("related__title").get(0)
+                    .getElementsByTag("a").get(0)
+                    .text();
+            List<String> tagList = article.getTagList();
+            tagList.add(tag);
+        }
 
         // 获取文章内容
         String content = getContent(document);
@@ -63,6 +67,8 @@ public class InfoqAnalyzer extends Analyzer {
         element.select("#editCommentPopup").remove();
         element.select("#messagePopup").remove();
         element.select("#responseContent").remove();
+        element.select("#contentRatingWidget").remove();
+        element.select("#noOfComments").remove();
 
         return element.html();
     }

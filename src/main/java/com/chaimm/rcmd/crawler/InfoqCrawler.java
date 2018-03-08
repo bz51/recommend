@@ -67,7 +67,7 @@ public class InfoqCrawler extends Crawler{
     public void crawl() {
         this.initExecutor();
 
-        CrawlerTask crawlerTask1 = new CrawlerTask(1,10);
+//        CrawlerTask crawlerTask1 = new CrawlerTask(1,10);
         CrawlerTask crawlerTask2 = new CrawlerTask(11,20);
         CrawlerTask crawlerTask3 = new CrawlerTask(21,30);
         CrawlerTask crawlerTask4 = new CrawlerTask(31,40);
@@ -77,8 +77,9 @@ public class InfoqCrawler extends Crawler{
         CrawlerTask crawlerTask8 = new CrawlerTask(71,80);
         CrawlerTask crawlerTask9 = new CrawlerTask(81,90);
         CrawlerTask crawlerTask10 = new CrawlerTask(91,100);
+        CrawlerTask crawlerTask11 = new CrawlerTask(101,110);
 
-        executor.submit(crawlerTask1);
+//        executor.submit(crawlerTask1);
         executor.submit(crawlerTask2);
         executor.submit(crawlerTask3);
         executor.submit(crawlerTask4);
@@ -88,6 +89,7 @@ public class InfoqCrawler extends Crawler{
         executor.submit(crawlerTask8);
         executor.submit(crawlerTask9);
         executor.submit(crawlerTask10);
+        executor.submit(crawlerTask11);
     }
 
     /**
